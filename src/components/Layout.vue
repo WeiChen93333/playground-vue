@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-aside width="200px">
+    <el-aside width="251px">
       <el-menu default-active="1-4-1" unique-opened :collapse="isCollapse"
         background-color="#545c64"
         text-color="#fff"
@@ -31,20 +31,53 @@
     </el-aside>
     <el-container>
       <el-header>Header</el-header>
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view></router-view>
+      </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script lang="ts">
+import router from '@/router'
+import menuList from './menuList'
 import { ref, defineComponent } from 'vue'
 export default defineComponent({
   setup() {
+    
     const isCollapse = ref(false);
     return {
       isCollapse
     };
   },
+  created () {
+    this.generateRoutes()
+  },
+  methods: {
+    generateRoutes () {
+      const routeList : any[] = []
+      menuList.forEach(menu => {
+        // 不展示子菜单则为可点击菜单, 才加入路由列表
+        if (!menu.showChildren) {
+          const path = menu.parent_url ? `/${menu.parent_url}/${menu.res_url}` : `/${menu.res_url}`
+          const route = {
+            path,
+            name: menu.res_url,
+            component: () => import(`@/views${path}`)
+          }
+          routeList.push(route)
+        }
+      })
+      console.log(routeList)
+      console.log(router)
+      router.addRoute('playground-vue', {
+        path: '/playground-vue/surfing',
+        name: 'surfing',
+        meta: { title: '工作台' },
+        component: () => import(`@/views/surfing/index.vue`)
+      })
+    }
+  }
 });
 </script>
 
