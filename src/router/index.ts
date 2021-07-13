@@ -1,6 +1,6 @@
-import {createRouter, createWebHashHistory} from "vue-router"
-const path = '/workbench'
-const routes = [
+import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router"
+
+const routes: Array<RouteRecordRaw> = [
   {
     path:'/',
     redirect: '/playground-vue'
@@ -16,6 +16,12 @@ const routes = [
         name: 'workbench',
         meta: { title: '工作台' },
         component: () => import(`@/views/workbench/index.vue`)
+      },
+      {
+        path: '/playground-vue/surfing',
+        name: 'surfing',
+        meta: { title: '网上冲浪' },
+        component: () => import(`@/views/surfing/index.vue`)
       }
     ]
   }
@@ -27,8 +33,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = `学习园地 - ${to.meta.title}`;
+  document.title = `学习园地 - ${to.meta.title}`
   next()
-});
+})
 
 export default router;

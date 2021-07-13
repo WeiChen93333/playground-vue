@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     workbench
-    <el-button @click="toSurf">toSurf</el-button>
 
   </div>
 </template>

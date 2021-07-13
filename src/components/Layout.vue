@@ -1,32 +1,24 @@
 <template>
   <el-container>
     <el-aside width="251px">
-      <el-menu default-active="1-4-1" unique-opened :collapse="isCollapse"
+      <el-menu :default-active="activeMenuItem" router unique-opened :collapse="isCollapse"
         background-color="#545c64"
         text-color="#fff"
-        active-text-color="#ffd04b">
-        <el-submenu index="1">
-          <template #title>
-            <i class="el-icon-location"></i>
-            <span>导航一</span>
-          </template>
-          <el-submenu index="1-4">
-            <template #title>选项4</template>
-            <el-menu-item index="1-4-1">选项1</el-menu-item>
+        active-text-color="#ffd04b"
+        @select="selectMenuItem">
+        <template v-for="(menu, index) in menuList">
+          <el-submenu v-if="menu.showChildren">
+            <template #title>
+              <i :class="menu.res_icon"></i>
+              <span>{{ menu.res_title }}</span>
+            </template>
+            <el-menu-item :index="menu.res_url" v-for="submenu in menu.children">{{ submenu.res_title }}</el-menu-item>
           </el-submenu>
-        </el-submenu>
-        <el-menu-item index="2">
-          <i class="el-icon-menu"></i>
-          <template #title>导航二</template>
-        </el-menu-item>
-        <el-menu-item index="3" disabled>
-          <i class="el-icon-document"></i>
-          <template #title>导航三</template>
-        </el-menu-item>
-        <el-menu-item index="4">
-          <i class="el-icon-setting"></i>
-          <template #title>导航四</template>
-        </el-menu-item>
+          <el-menu-item :index="menu.res_url" v-else>
+            <i :class="menu.res_icon"></i>
+            <template #title>{{ menu.res_title }}</template>
+          </el-menu-item>
+        </template>
       </el-menu>
     </el-aside>
     <el-container>
@@ -38,47 +30,40 @@
   </el-container>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import router from '@/router'
 import menuList from './menuList'
-import { ref, defineComponent } from 'vue'
-export default defineComponent({
-  setup() {
-    
-    const isCollapse = ref(false);
-    return {
-      isCollapse
-    };
-  },
-  created () {
-    this.generateRoutes()
-  },
-  methods: {
-    generateRoutes () {
-      const routeList : any[] = []
-      menuList.forEach(menu => {
-        // 不展示子菜单则为可点击菜单, 才加入路由列表
-        if (!menu.showChildren) {
-          const path = menu.parent_url ? `/${menu.parent_url}/${menu.res_url}` : `/${menu.res_url}`
-          const route = {
-            path,
-            name: menu.res_url,
-            component: () => import(`@/views${path}`)
-          }
-          routeList.push(route)
+import { ref, onMounted } from 'vue'
+  const isCollapse = ref(false)
+  onMounted(() => generateRoutes())
+  const generateRoutes = () => {
+    const routeList : any[] = []
+    menuList.forEach(menu => {
+      // 不展示子菜单则为可点击菜单, 才加入路由列表
+      if (!menu.showChildren) {
+        const path = menu.parent_url ? `/${menu.parent_url}/${menu.res_url}` : `/${menu.res_url}`
+        const route = {
+          path,
+          name: menu.res_url,
+          component: () => import(`@/views${path}.vue`)
         }
-      })
-      console.log(routeList)
-      console.log(router)
-      router.addRoute('playground-vue', {
-        path: '/playground-vue/surfing',
-        name: 'surfing',
-        meta: { title: '工作台' },
-        component: () => import(`@/views/surfing/index.vue`)
-      })
-    }
+        routeList.push(route)
+      }
+    })
+    // console.log('routerset')
+    // router.addRoute('playground-vue', {
+    //   path: '/playground-vue/surfing',
+    //   name: 'surfing',
+    //   meta: { title: '网上冲浪' },
+    //   component: () => import(`@/views/surfing/index.vue`)
+    // })
+    // console.log(this.$router)
   }
-});
+  let activeMenuItem: string = 'workbench'
+  const selectMenuItem = (index: string) => {
+    activeMenuItem = index
+    
+  }
 </script>
 
 <style lang="less" scoped>
