@@ -34,30 +34,39 @@
 import router from '@/router'
 import menuList from './menuList'
 import { ref, onMounted } from 'vue'
+
+// import { RouteRecordRaw } from 'vue-router'
   const isCollapse = ref(false)
   onMounted(() => generateRoutes())
   const generateRoutes = () => {
-    const routeList : any[] = []
+    console.log('generate')
+    // let indexRoute: RouteRecordRaw
+    const indexRoute = {
+      path: '/playground-vue',
+      name: 'playground-vue',
+      component: () => import(`@/views/layout/index.vue`),
+      // redirect: '/playground-vue/workbench',
+      // children: []
+    }
     menuList.forEach(menu => {
-      // 不展示子菜单则为可点击菜单, 才加入路由列表
-      if (!menu.showChildren) {
-        const path = menu.parent_url ? `/${menu.parent_url}/${menu.res_url}` : `/${menu.res_url}`
-        const route = {
-          path,
-          name: menu.res_url,
-          component: () => import(`@/views${path}.vue`)
-        }
-        routeList.push(route)
-      }
+      // const path = menu.parent_url ? `/${menu.parent_url}/${menu.res_url}` : `/${menu.res_url}`
+      // const route = {
+      //   path,
+      //   name: menu.res_url,
+      //   component: () => import(`../${path}.vue`)
+      // }
     })
-    // console.log('routerset')
-    // router.addRoute('playground-vue', {
-    //   path: '/playground-vue/surfing',
-    //   name: 'surfing',
-    //   meta: { title: '网上冲浪' },
-    //   component: () => import(`@/views/surfing/index.vue`)
-    // })
-    // console.log(this.$router)
+    router.addRoute('playground-vue',  {
+      path: '/playground-vue/surfing',
+      name: 'surfing',
+      meta: { title: '网上冲浪' },
+      component: () => import(`@/views/surfing/index.vue`)
+    })
+    console.log(router.options.routes)
+    if (sessionStorage.getItem('beforeUrl')) {
+      router.push(sessionStorage.getItem('beforeUrl')!)
+      sessionStorage.setItem('beforeUrl', '')
+    }
   }
   let activeMenuItem: string = 'workbench'
   const selectMenuItem = (index: string) => {
