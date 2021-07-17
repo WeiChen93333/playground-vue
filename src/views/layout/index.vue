@@ -39,30 +39,18 @@ import { ref, onMounted } from 'vue'
   const isCollapse = ref(false)
   onMounted(() => generateRoutes())
   const generateRoutes = () => {
-    console.log('generate')
-    // let indexRoute: RouteRecordRaw
-    const indexRoute = {
-      path: '/playground-vue',
-      name: 'playground-vue',
-      component: () => import(`@/views/layout/index.vue`),
-      // redirect: '/playground-vue/workbench',
-      // children: []
-    }
     menuList.forEach(menu => {
-      // const path = menu.parent_url ? `/${menu.parent_url}/${menu.res_url}` : `/${menu.res_url}`
-      // const route = {
-      //   path,
-      //   name: menu.res_url,
-      //   component: () => import(`../${path}.vue`)
-      // }
+      const path = menu.parent_url ? `/${menu.parent_url}/${menu.res_url}` : `/${menu.res_url}`
+      const route = {
+        path,
+        name: menu.res_url,
+        component: () => import(`..${path}/index.vue`),
+        meta: {
+          title: menu.res_title
+        }
+      }
+      router.addRoute('base', route)
     })
-    router.addRoute('playground-vue',  {
-      path: '/playground-vue/surfing',
-      name: 'surfing',
-      meta: { title: '网上冲浪' },
-      component: () => import(`@/views/surfing/index.vue`)
-    })
-    console.log(router.options.routes)
     if (sessionStorage.getItem('beforeUrl')) {
       router.push(sessionStorage.getItem('beforeUrl')!)
       sessionStorage.setItem('beforeUrl', '')
@@ -80,6 +68,9 @@ import { ref, onMounted } from 'vue'
   height: 100%;
   .el-aside{
     background-color: rgb(84, 92, 100);
+    [class^="el-icon-"] {
+      color: unset;
+    }
   }
   .el-header{
     display: flex;
