@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-aside width="251px">
+    <el-aside :width="isCollapse ? '65px' : '250px'">
       <el-menu :default-active="activeMenuItem" router unique-opened :collapse="isCollapse"
         background-color="#545c64"
         text-color="#fff"
@@ -36,7 +36,7 @@ import menuList from './menuList'
 import { ref, onMounted } from 'vue'
 
 // import { RouteRecordRaw } from 'vue-router'
-  const isCollapse = ref(false)
+  const isCollapse = ref(true)
   onMounted(() => generateRoutes())
   const generateRoutes = () => {
     menuList.forEach(menu => {

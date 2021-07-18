@@ -27,7 +27,6 @@ import { defineComponent, ref, reactive, toRefs, shallowRef, shallowReactive, ma
   }
   import Poker from './poker/index.vue'
   import Snake from './snake/index.vue'
-  console.log(Poker)
   type gameObj = object & {
     id: string,
     name: string,
