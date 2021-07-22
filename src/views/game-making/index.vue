@@ -14,14 +14,14 @@
     </ul>
     <div class="game-tab">
       <keep-alive>
-        <component :is="currentGameTab.component"></component>
+        <component :is="currentGameTab"></component>
       </keep-alive>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineComponent, ref, reactive, toRefs, shallowRef, shallowReactive, markRaw} from "vue"
+import { reactive, shallowRef, markRaw} from "vue"
   interface dataProps{
 
   }
@@ -39,17 +39,17 @@ import { defineComponent, ref, reactive, toRefs, shallowRef, shallowReactive, ma
         id: '1',
         name: '斗地主',
         current: true,
-        component: Poker
+        component: markRaw(Poker)
       },
       { 
         id: '2',
         name: '贪吃蛇',
         current: false,
-        component: Snake
+        component: markRaw(Snake)
       }
     ]
   )
-  let currentGameTab = shallowReactive({ component: markRaw(Poker)})
+  let currentGameTab = shallowRef(markRaw(Poker))
   const changeGameTab = (gameObj: gameObj)=> {
     gameList.forEach(game => {
       if (game === gameObj) {
@@ -58,7 +58,7 @@ import { defineComponent, ref, reactive, toRefs, shallowRef, shallowReactive, ma
         game.current = false
       }
     })
-    currentGameTab.component = markRaw(gameObj.component)
+    currentGameTab.value = markRaw(gameObj.component)
   }
 </script>
 
