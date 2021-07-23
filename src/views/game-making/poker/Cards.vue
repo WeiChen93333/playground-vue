@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, toRefs, defineProps} from "vue"
+
 const props = defineProps ({
   pile: {
     type: Object,

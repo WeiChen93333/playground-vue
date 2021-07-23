@@ -7,9 +7,10 @@ import 'element-plus/lib/theme-chalk/index.css'
 import '@/assets/style/index.less'
 // 引入 router store
 import router from './router'
-// import store from './store'
+import store from './store'
 const app = createApp(App)
 app
   .use(ElementPlus)
   .use(router)
+  .use(store)
   .mount('#app')

@@ -16,6 +16,14 @@ export default [
     children: []
   },
   {
+    res_title: '阅读',
+    res_url: 'reading',
+    res_icon: 'el-icon-reading',
+    parent_url: null,
+    showChildren: false,
+    children: []
+  },
+  {
     res_title: '游戏制作',
     res_url: 'game-making',
     res_icon: 'el-icon-bicycle',
