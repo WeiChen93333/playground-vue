@@ -5,7 +5,7 @@
         <TextSection/>
       </el-col>        
       <el-col :span="12">
-        <!-- <WordSection/> -->
+        <WordSection/>
       </el-col>    
     </el-row>      
   </div>
@@ -14,7 +14,7 @@
 <script setup lang="ts">
 
 import TextSection from './childComps/TextSection.vue'
-// import WordSection from './childComps/WordSection.vue'
+import WordSection from './childComps/WordSection.vue'
 
 
   // mounted(){
@@ -36,8 +36,6 @@ import TextSection from './childComps/TextSection.vue'
   .el-row{
     // margin: 0 auto;
     // margin-top: 5%;
-    width: 60%;
-    min-width: 880px;
     // height: 640px;
     height: 100%;
     padding: 20px;
