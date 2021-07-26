@@ -5,7 +5,7 @@ import App from './App.vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css'
 import '@/assets/style/index.less'
-// 引入 router store
+// 引入 router store axios
 import router from './router'
 import store from './store'
 const app = createApp(App)
@@ -14,3 +14,4 @@ app
   .use(router)
   .use(store)
   .mount('#app')
+// app.config.globalProperties.$http = axios;

@@ -140,12 +140,11 @@ console.log(readingText)
 .text-section{
   height: 100%;
   .text-display{
+    border: 2px solid rgb(64, 128, 128) ;
     margin-top: 20px;
     height: calc(100% - 60px);
     padding: 10px;
-    // border: 2px solid rgb(64, 128, 128);
-    // border-right: none;
-    background-color: hsla(0, 0%, 100%, .5)   ;
+    background-color: #fff;
     overflow-y: auto;
     p{
       margin-bottom: 10px;

@@ -80,7 +80,7 @@ import { ref, onMounted } from 'vue'
     box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
   }
   .el-main{
-
+    background: #f0f2f5;
   }
 }
 </style>

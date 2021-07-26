@@ -42,16 +42,6 @@ const store = createStore({
     changeReadingText(state, payload){
       state.readingText = payload
     },
-
-    //改变查词跳转历史
-    addSearchHistory(state, payload){
-      //匹配字母和 ' , 去掉可能的标点符号、空格     
-      const reg = /[a-zA-Z']+/     
-      payload = reg.exec(payload)[0].toLowerCase()   
-      //判断是否连续查询同一个单词 
-      if(state.searchHistory[state.searchHistory.length - 1] !== payload)
-        state.searchHistory.push(payload)
-    },
     reduceSearchHistory(state){
       state.searchHistory.pop(state.searchHistory.length - 1)
     },
