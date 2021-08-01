@@ -4,7 +4,8 @@
       <template #header>
         <div class="card-header">
           <span>斗地主进行中......</span>
-          <el-button type="text" class="button">结束游戏</el-button>
+      
+          <!-- <el-button type="text" class="button" @click="exitGame">结束游戏</el-button> -->
         </div>
       </template>
       <div class="card-desktop">

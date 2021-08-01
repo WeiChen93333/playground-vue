@@ -49,7 +49,7 @@ import { reactive, shallowRef, markRaw} from "vue"
       }
     ]
   )
-  let currentGameTab = shallowRef(markRaw(Poker))
+  let currentGameTab = shallowRef(markRaw(Snake))
   const changeGameTab = (gameObj: gameObj)=> {
     gameList.forEach(game => {
       if (game === gameObj) {
