@@ -24,6 +24,14 @@ export default [
     children: []
   },
   {
+    res_title: '笔记',
+    res_url: 'notes',      
+    res_icon: 'el-icon-notebook-1',
+    parent_url: null,
+    showChildren: false,
+    children: []
+  },
+  {
     res_title: '游戏制作',
     res_url: 'game-making',
     res_icon: 'el-icon-bicycle',
