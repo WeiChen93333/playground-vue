@@ -8,11 +8,11 @@
             <el-button class="button" type="text" @click.stop="edit">编辑</el-button>
           </div>
         </template>
-        <!-- <CollapseTransition> -->
+        <CollapseTransition>
           <div class="card-content" v-show="contenVisible">
             解决方式：给子元素加上 width: 0
           </div>
-        <!-- </CollapseTransition> -->
+        </CollapseTransition>
       </el-card>
     </div>
     <el-drawer
@@ -23,7 +23,7 @@
       size="80%">
       <div class="drawer-content">
         <div class="content-edit">
-          <MarkdownEditor></MarkdownEditor>
+          
         </div>
         <div class="type-select"></div>
       </div>
@@ -36,8 +36,7 @@
 </template>
 
 <script setup lang="ts">
-// import CollapseTransition from './collapse-transition.js'
-import MarkdownEditor from './MarkdownEditor.vue'
+import CollapseTransition from '@/components/collapse-transition.js'
 import { ref, reactive, toRefs, onMounted } from 'vue'
 const contenVisible = ref(false)
 const markdownText = ref('测试')
@@ -51,32 +50,15 @@ const drawerVisible = ref(false)
 const handleClose = (done) => {
   
 }
-// 将图片上传到服务器，返回地址替换到md中
-const imgAdd = (pos, $file) => {
-  // var formdata = new FormData();
-  // formdata.append('file', $file);
-  // // 这里没有服务器供大家尝试，可将下面上传接口替换为你自己的服务器接口
-  // this.$axios({
-  //     url: '/common/upload',
-  //     method: 'post',
-  //     data: formdata,
-  //     headers: { 'Content-Type': 'multipart/form-data' },
-  // }).then((url) => {
-  //     this.$refs.md.$img2Url(pos, url);
-  // })
-}
-const change = (value, render) => {
-    // render 为 markdown 解析后的结果
-    // this.html = render;
-}
 const confirmEdit = () => {
-  console.log(markdownText.value)
+  
 }
 
 </script>
 
 <style lang="less" scoped>
 .question-answering{
+  margin-bottom: 16px;
   .article-list{
     .card-header{
       display: flex;

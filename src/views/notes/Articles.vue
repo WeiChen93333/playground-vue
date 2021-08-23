@@ -1,5 +1,5 @@
 <template>
-  <div class="question-answering">
+  <div class="articles">
     <div class="article-list">
       <el-card class="box-card">
         <template #header>
@@ -8,11 +8,11 @@
             <el-button class="button" type="text" @click.stop="edit">编辑</el-button>
           </div>
         </template>
-        <!-- <CollapseTransition> -->
+        <CollapseTransition>
           <div class="card-content" v-show="contenVisible">
             解决方式：给子元素加上 width: 0
           </div>
-        <!-- </CollapseTransition> -->
+        </CollapseTransition>
       </el-card>
     </div>
     <el-drawer
@@ -31,14 +31,15 @@
         <el-button @click="drawerVisible = false">取 消</el-button>
         <el-button type="primary" @click="confirmEdit" >{{ '确 定' }}</el-button>
       </div>
-    </el-drawer>            
+    </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-// import CollapseTransition from './collapse-transition.js'
+import CollapseTransition from '@/components/collapse-transition.js'
 import MarkdownEditor from './MarkdownEditor.vue'
 import { ref, reactive, toRefs, onMounted } from 'vue'
+import axios from '@/axios/index'
 const contenVisible = ref(false)
 const mdEditor = ref(null)
 const toggleContentDisplay = () => {
@@ -55,15 +56,22 @@ const handleClose = (done) => {
 //   console.log(mdEditor)
 // })
 const confirmEdit = () => {
-  console.log(mdEditor.value.msg)
-  mdEditor.value.getContent()
+  const mdContent = mdEditor.value.getContent()
+  const postObj = {
+    type: 'article',
+    title: '你好,md',
+    content: mdContent
+  }
+  axios.post('/playground-vue/notes/create', postObj)
+  // axios.post('/playground-vue/notes/list', { type: 'article' })
 }
 
 
 </script>
 
 <style lang="less" scoped>
-.question-answering{
+.articles{
+  margin-bottom: 16px;
   .article-list{
     .card-header{
       display: flex;

@@ -1,21 +1,28 @@
 import axios from "axios"
 import {
-    ElMessageBox
+  ElMessageBox
 } from 'element-plus'
 
-axios.defaults.baseURL = "http://localhost:3366"
+// axios.defaults.baseURL = "http://localhost:3366"
 axios.defaults.withCredentials = true
 
-//post请求头
-axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8"
-//设置超时
-axios.defaults.timeout = 10000
+axios.defaults.timeout = 60000
+axios.defaults.headers = {
+  'Content-type': 'application/json;charset=UTF-8'
+}
+axios.defaults.withCredentials = true
 
 axios.interceptors.request.use(
   config => {
     //为请求头对象, 添加 token 验证的 Authorization 字段  
     config.headers['Authorization'] = window.sessionStorage.getItem('token')
-    //*发起登录请求的时候还没有token, window.sessionStorage.getItem('token')为"null"  
+    //*发起登录请求的时候还没有token, window.sessionStorage.getItem('token')为"null"
+    // 添加随机数，解决 ie 缓存问题
+    if (config.url.includes('?')) {
+      config.url = config.url + '&random=' + Math.random()
+    } else {
+      config.url = config.url + '?random=' + Math.random()
+    }
     return config
   },
   error => {
@@ -23,32 +30,45 @@ axios.interceptors.request.use(
   }
 );
 
+const whiteList: string[] = [
+  // 导出文或下载文件时没有返回数据中没有 code 和 message
+]
+const autoMessageList: string[] = []
 axios.interceptors.response.use(
   response => {
-    if (response.status == 200) {
-        return Promise.resolve(response)
+    const url = response.config.url
+    let notIntercept = false
+    whiteList.forEach(item => {
+      if (url.indexOf(item) !== -1) {
+        notIntercept = true
+      }
+    })
+    if (notIntercept) return response
+    const data = response.data
+    if (data.code === 200 || data.code === '200') {
+      // 设置自动消息弹出
+      const url = response.config.url
+      autoMessageList.forEach(item => {
+        if (url.indexOf(item) !== -1) {
+          console.log(ElMessageBox)
+          // ElMessageBox.message({
+          //   type: 'success',
+          //   message: data.message || '操作成功'
+          // })
+        }
+      })
+      return data
     } else {
-        return Promise.reject(response)
+      // ElMessageBox.message({
+      //   type: 'error',
+      //   message: data.message || '操作成功'
+      // })
+      return Promise.reject(data)
     }
   },
   error => {
-    // ElMessageBox(JSON.stringify(error), '请求异常', {
-    //     confirmButtonText: '确定',
-    //     callback: action => {}
-    // })
+
   }
 )
-
-// function request(method, path, payload){
-//   if(method == 'GET'){
-//     return axios.get(path, payload)
-//   }
-//   if(method == 'POST'){
-//     return axios.post(path, JSON.stringify(payload))
-//   }
-//   // if(method == 'PUT'){ 
-//   //   return axios.put('/test', JSON.stringify({'name': 'chen'}))
-//   // }
-// }
 
 export default axios

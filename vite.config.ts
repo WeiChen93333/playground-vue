@@ -20,4 +20,24 @@ export default defineConfig({
       }
     }
   },
+  optimizeDeps: {
+    include: ['axios'],
+  },
+  build: {
+    target: 'modules',
+    outDir: 'dist',
+    assetsDir: 'assets',
+    minify: 'terser' // 混淆器
+  },
+  server: {
+    cors: true,
+    open: true,
+    proxy: {
+      '/playground-vue': {
+        target: 'http://localhost:3366',   //代理接口
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/playground-vue/, '')
+      }
+    }
+  }
 })

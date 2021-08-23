@@ -25,7 +25,7 @@ onMounted(() => {
   })
 })
 const getContent = () => {
-  console.log(vditor.getValue())
+  return vditor.getValue()
 }
 const msg = ref('hello world')
 expose({

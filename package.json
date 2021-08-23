@@ -6,6 +6,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@nestjs/mapped-types": "*",
     "ant-design-vue": "^2.2.1",
     "axios": "^0.21.1",
     "element-plus": "^1.0.2-beta.55",
