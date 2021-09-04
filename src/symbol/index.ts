@@ -1,0 +1,1 @@
+export const AXIOS_SYMBOL = Symbol('axios')

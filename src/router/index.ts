@@ -5,13 +5,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'base',
     component: () => import(`@/views/layout/index.vue`),
-    redirect: '/workbench',
+    redirect: '/reading',
     children: [
       {
-        path: '/workbench',
-        name: 'workbench',
+        path: '/reading',
+        name: 'reading',
         meta: { title: '工作台' },
-        component: () => import(`@/views/workbench/index.vue`)
+        component: () => import(`@/views/reading/index.vue`)
       }
     ]
   },
