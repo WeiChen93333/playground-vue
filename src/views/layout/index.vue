@@ -22,7 +22,17 @@
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header>Header</el-header>
+      <el-header>
+        <div class="collapse-control-icons">
+          <expand v-if="isCollapse"
+            style="width: 24px; height: 24px; margin-right: 8px; cursor: pointer;"
+            @click="isCollapse = false" />   
+          <fold v-else
+            style="width: 24px; height: 24px; margin-right: 8px; cursor: pointer;"
+            @click="isCollapse = true" />   
+        </div>
+           
+      </el-header>
       <el-main>
         <router-view></router-view>
       </el-main>
@@ -34,9 +44,11 @@
 import router from '@/router'
 import menuList from './menuList'
 import { ref, onMounted } from 'vue'
+import { Expand } from '@element-plus/icons'
+import { Fold } from '@element-plus/icons'
 
 // import { RouteRecordRaw } from 'vue-router'
-  const isCollapse = ref(true)
+  const isCollapse = ref(false)
   onMounted(() => generateRoutes())
   const generateRoutes = () => {
     menuList.forEach(menu => {
@@ -68,6 +80,7 @@ import { ref, onMounted } from 'vue'
   height: 100%;
   .el-aside{
     background-color: rgb(84, 92, 100);
+    height: 100%;
     [class^="el-icon-"] {
       color: unset;
     }

@@ -1,22 +1,62 @@
 <template> 
   <div class="reading">
     <el-row :gutter="20">
-      <el-col :span="12">
-        <div class="text-section">
-          <div class="button-group">
-            <el-button type="primary"
-              @click="inputDialogVisible = true">
-              导入</el-button>
-            <el-button type="primary"
-              @click="clearDialogVisible = true">
-              清空</el-button>
+      <el-col :span="14">
+        <!-- 选择打开外部链接模式或文本输入模式 -->
+        <div class="source-select" v-if="!contentSource">
+          <div class="from-links mb16">
+            <el-input v-model="filterText" placeholder="Filter keyword" />
+            <el-tree
+              ref="linkTree"
+              class="filter-tree"
+              :data="treeData"
+              :props="defaultProps"
+              default-expand-all
+              :filter-node-method="filterNode"
+              @node-click="handleNodeClick"
+            />
           </div>
-          <div class="text-display">
-            <p v-for="(item1, index1) in textArr" :key="index1">
-              <span v-for="(item2, index2) in item1" :key="index2"
-              @click="clickSearch(item2)"
-              @dblclick="addToWordCollection(item2)">{{item2 + ' '}}</span>
-            </p>
+          <div class="from-input">
+            <el-input type="textarea"
+              :rows="6"
+              v-model="newAdd">
+            </el-input>
+            <el-button type="primary" @click="confirmInput">确 定</el-button>
+          </div>
+        </div>
+        <div class="button-container mb16" v-else>
+          <el-button type="primary" plain @click="contentSource = ''">返回</el-button>
+        </div>
+        <div class="content-section">
+          <div class="text-container h100" v-if="contentSource === 'input'">
+            <div class="button-container mb16">
+              <el-button type="primary"
+                @click="inputDialogVisible = true">
+                导入</el-button>
+              <el-button type="primary"
+                @click="clearDialogVisible = true">
+                清空</el-button>
+            </div>
+            <ContextMenu>
+              <div class="text-display">
+                <p v-for="(item1, index1) in textArr" :key="index1">
+                  <span v-for="(item2, index2) in item1" :key="index2"
+                  @click="clickSearch(item2)"
+                  @dblclick="addToWordCollection(item2)">{{item2 + ' '}}</span>
+                </p>
+              </div>
+            </ContextMenu>           
+          </div>
+          <div class="iframe-container" v-if="contentSource === 'link'">
+            <iframe
+              :src="iframeSrc"
+              height="100%"
+              width="100%"
+              name="music"
+              frameborder="0"
+              scrolling="auto"
+              sandbox="allow-same-origin allow-top-navigation allow-forms allow-scripts"
+            ></iframe>
           </div>
 
           <!-- 导入对话框 -->
@@ -30,7 +70,7 @@
               <el-button type="primary" @click="confirmInput">确 定</el-button>
             </div>
           </el-dialog>
-          
+
           <!-- 清除确认对话框 -->
           <el-dialog
             title="删除内容"
@@ -44,7 +84,7 @@
           </el-dialog>
         </div>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="10">
         <div class="word-section">
           <div class="switch-box">
             <div class="switch">
@@ -79,11 +119,13 @@
 <script setup lang="ts">
 // import WordInfoDisplay from '@/views/components/WordInfoDisplay'
 // import SentenceDisplay from '@/views/components/SentenceDisplay'
+import ContextMenu from '@/components/ContextMenu.vue'
 
 import { ref, computed, onMounted, reactive, markRaw, watch,  getCurrentInstance } from 'vue'
 import { useStore} from 'vuex'
 const store = useStore()
 const wordCollection = computed(() => store.state.wordCollection).value
+import useTree from './hooks/useTree.js'
 // const currentWord = computed(() => {
 //   if (searchHistory.length - 1 >= 0) {
 //     return searchHistory[searchHistory.length - 1]
@@ -92,14 +134,22 @@ const wordCollection = computed(() => store.state.wordCollection).value
 
 //初始化时从 vuex 获取阅读文本，获取当前单词（如有，并查询）
 const init = () => {
-  const readingText = computed(() => store.state.readingText).value
+  const readingText = store.state['modules/reading'].text
   textStr.value = readingText
+  console.log(typeof readingText)
   //初始化时从 vuex 获取当前单词
   // if (currentWord.value) {
-  //   searchThroughDict(currentWord.value)  
+  //   searchThroughDict(currentWord.value)
   // }
 }
 onMounted (() => init())
+const {
+  contentSource, 
+  filterText, 
+  linkTree, treeData, defaultProps,
+  filterNode, handleNodeClick,
+  iframeSrc
+} = useTree()
 //按钮区域
 //导入
 const inputDialogVisible = ref(false)
@@ -108,7 +158,14 @@ const newAdd = ref('') //用户每次输入的文本
 const confirmInput = () => { // 对话内确认按钮
   textStr.value += newAdd.value
   newAdd.value = ''
-  inputDialogVisible.value = false
+  store.commit('modules/reading/setText', textStr.value)
+
+  // 如果是模式选择状态，则切换至输入展示；否则关闭导入对话框
+  if (!contentSource.value) {
+    contentSource.value = 'input'
+  } else {
+    inputDialogVisible.value = false
+  }
 }
 const textArr = computed (() => { // 更与文本生成数组用于展示
   const tempArr = []
@@ -170,7 +227,6 @@ const clickSearch = (word: string) => {
     addSearchHistory(word)
   }, 200)
 }
-console.log(searchHistory.value)
 
 //将单词加入当前单词集
 // const addToWordCollection = (word: string) =>{
@@ -209,27 +265,36 @@ const inputSearch = () => {
 <style lang="less" scoped>
 .reading{
   height: 100%;
+  .sub-header{
+    height: 60px;
+    background-color: lightgray;
+  }
   .el-row{
     height: 100%;
     padding-bottom: 40px;
   }
-  .text-section{
+  .content-section{
     height: 100%;
-    .text-display{
-      border: 2px solid rgb(64, 128, 128) ;
-      margin-top: 20px;
-      height: calc(100% - 60px);
-      padding: 10px;
-      background-color: #fff;
-      overflow-y: auto;
-      p{
-        margin-bottom: 10px;
-        line-height: 22px;
-        text-align: justify;
-        span{
-          cursor: pointer;
+    .text-container{
+      .text-display{
+        border: 2px solid rgb(64, 128, 128) ;
+        margin-top: 20px;
+        height: calc(100% - 60px);
+        padding: 10px;
+        background-color: #fff;
+        overflow-y: auto;
+        p{
+          margin-bottom: 10px;
+          line-height: 22px;
+          text-align: justify;
+          span{
+            cursor: pointer;
+          }
         }
       }
+    }
+    .iframe-container{
+      height: calc(100% - 60px)
     }
   }
   .word-section{
@@ -237,6 +302,7 @@ const inputSearch = () => {
     .switch-box{
       display: flex;
       justify-content: flex-end;
+      margin-bottom: 20px;
       .switch{
         display: flex;
         width: 100px;
@@ -259,7 +325,6 @@ const inputSearch = () => {
       }
     }
     .search-box{
-      margin-top: 20px;
       display: flex;
       :deep .el-input__inner{
         border-color: transparent;

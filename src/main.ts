@@ -20,3 +20,10 @@ app
   .use(ElementPlus)
   .mount('#app')
 // app.config.globalProperties.$http = axios;
+
+app.directive('getposition', {
+  updated(el, binding){
+    el.style.left = binding.value.x + 'px'     
+    el.style.top = binding.value.y + 'px'          
+  }
+})
