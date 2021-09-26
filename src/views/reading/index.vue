@@ -1,115 +1,68 @@
-<template> 
+<template>
   <div class="reading">
     <el-row :gutter="20">
       <el-col :span="14">
         <!-- 选择打开外部链接模式或文本输入模式 -->
         <div class="source-select" v-if="!contentSource">
           <div class="from-links mb16">
-            <el-input v-model="filterText" placeholder="Filter keyword" />
-            <el-tree
-              ref="linkTree"
-              class="filter-tree"
-              :data="treeData"
-              :props="defaultProps"
-              default-expand-all
-              :filter-node-method="filterNode"
-              @node-click="handleNodeClick"
-            />
+            <el-card class="box-card">
+              <template #header>
+                <div class="card-header">
+                  <span class="title">链接模式</span>
+                </div>
+              </template>
+              <el-input v-model="filterText" placeholder="Filter keyword" />
+              <el-tree
+                ref="linkTree"
+                class="filter-tree"
+                :data="treeData"
+                :props="defaultProps"
+                default-expand-all
+                :filter-node-method="filterNode"
+                @node-click="handleNodeClick"
+              />
+            </el-card>
           </div>
           <div class="from-input">
-            <el-input type="textarea"
-              :rows="6"
-              v-model="newAdd">
-            </el-input>
-            <el-button type="primary" @click="confirmInput">确 定</el-button>
+            <el-card class="box-card">
+              <template #header>
+                <div class="card-header">
+                  <span class="title">文本模式</span>
+                  <el-button type="text" class="button" @click="addText">新建</el-button>
+                </div>
+              </template>
+              <el-table :data="textHistory" border style="width: 100%">
+                <el-table-column prop="name" label="文本片段名称" width="180" />
+                <el-table-column prop="date" label="上次阅读时间" width="180" />
+                <el-table-column prop="operation" label="操作">
+                  <template v-slot="props">
+                    <div class="button-container">
+                      <el-button type="text" class="button" @click="viewText(props.row)">查看</el-button>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-card>
           </div>
         </div>
         <div class="button-container mb16" v-else>
           <el-button type="primary" plain @click="contentSource = ''">返回</el-button>
         </div>
-        <div class="content-section">
-          <div class="text-container h100" v-if="contentSource === 'input'">
-            <div class="button-container mb16">
-              <el-button type="primary"
-                @click="inputDialogVisible = true">
-                导入</el-button>
-              <el-button type="primary"
-                @click="clearDialogVisible = true">
-                清空</el-button>
-            </div>
-            <ContextMenu>
-              <div class="text-display">
-                <p v-for="(item1, index1) in textArr" :key="index1">
-                  <span v-for="(item2, index2) in item1" :key="index2"
-                  @click="clickSearch(item2)"
-                  @dblclick="addToWordCollection(item2)">{{item2 + ' '}}</span>
-                </p>
-              </div>
-            </ContextMenu>           
-          </div>
-          <div class="iframe-container" v-if="contentSource === 'link'">
-            <iframe
-              :src="iframeSrc"
-              height="100%"
-              width="100%"
-              name="music"
-              frameborder="0"
-              scrolling="auto"
-              sandbox="allow-same-origin allow-top-navigation allow-forms allow-scripts"
-            ></iframe>
-          </div>
-
-          <!-- 导入对话框 -->
-          <el-dialog title="内容输入" v-model="inputDialogVisible">
-            <el-input type="textarea"
-              :rows="6"
-              v-model="newAdd">
-            </el-input>
-            <div slot="footer" class="dialog-footer">
-              <el-button @click="inputDialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="confirmInput">确 定</el-button>
-            </div>
-          </el-dialog>
-
-          <!-- 清除确认对话框 -->
-          <el-dialog
-            title="删除内容"
-            v-model="clearDialogVisible"
-            width="30%">
-            <span>Are you sure you want to clear reading area?</span>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="clearDialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="confirmClear">确 定</el-button>
-            </span>
-          </el-dialog>
+        <div class="content-section h100">
+          <TextView v-if="contentSource === 'text'" :data="currentText" />
+          <LinkView v-if="contentSource === 'link'" :iframeSrc="iframeSrc" />
         </div>
       </el-col>
       <el-col :span="10">
-        <div class="word-section">
-          <div class="switch-box">
-            <div class="switch">
-              <div class="mode" :class="{active: mode=='meaning'}"
-                @click="switchMode('meaning')">释义</div>
-              <div class="mode" :class="{active: mode=='sentence'}"
-                @click="switchMode('sentence')">例句</div>
-            </div>
-          </div>
-          <div class="search-box">
-            <el-input size="large" type="text" class="text" @keyup.enter="inputSearch"
-              v-model="inputWord">
-            </el-input>
-            <div class="serach-icon" @click="inputSearch">
-              <i class="el-icon-search"></i> 
-            </div>
-          </div>
-          <div class="info-display">
-            <div v-if="mode === 'meaning'">测试一</div>
-            <div v-else>测试二</div>
-            <!-- <component 
-              :is="currentComponent" 
-              :infoData="infoData"
-              :currentWord="currentWord"></component>       -->
-          </div>
+        <div class="toggle-box mb16">
+          <el-tag :type="val.isShow ? undefined : 'info'"
+            class="mr8 pointer"
+            v-for="(val, key) in tags" :key="key"
+            @click="val.isShow = !val.isShow"
+          >{{ val.name}}</el-tag>
+        </div>
+        <div class="attach-section h100">
+          <WordInfo v-if="tags.wordInfo.isShow"/>
         </div>
       </el-col>
     </el-row>
@@ -119,7 +72,10 @@
 <script setup lang="ts">
 // import WordInfoDisplay from '@/views/components/WordInfoDisplay'
 // import SentenceDisplay from '@/views/components/SentenceDisplay'
-import ContextMenu from '@/components/ContextMenu.vue'
+
+import TextView from './components/TextView.vue'
+import LinkView from './components/LinkView.vue'
+import WordInfo from './components/WordInfo.vue'
 
 import { ref, computed, onMounted, reactive, markRaw, watch,  getCurrentInstance } from 'vue'
 import { useStore} from 'vuex'
@@ -134,9 +90,6 @@ import useTree from './hooks/useTree.js'
 
 //初始化时从 vuex 获取阅读文本，获取当前单词（如有，并查询）
 const init = () => {
-  const readingText = store.state['modules/reading'].text
-  textStr.value = readingText
-  console.log(typeof readingText)
   //初始化时从 vuex 获取当前单词
   // if (currentWord.value) {
   //   searchThroughDict(currentWord.value)
@@ -144,90 +97,44 @@ const init = () => {
 }
 onMounted (() => init())
 const {
-  contentSource, 
-  filterText, 
+  contentSource,
+  filterText,
   linkTree, treeData, defaultProps,
   filterNode, handleNodeClick,
   iframeSrc
 } = useTree()
-//按钮区域
-//导入
-const inputDialogVisible = ref(false)
-const textStr = ref('') //全部文本
-const newAdd = ref('') //用户每次输入的文本
-const confirmInput = () => { // 对话内确认按钮
-  textStr.value += newAdd.value
-  newAdd.value = ''
-  store.commit('modules/reading/setText', textStr.value)
 
-  // 如果是模式选择状态，则切换至输入展示；否则关闭导入对话框
-  if (!contentSource.value) {
-    contentSource.value = 'input'
-  } else {
-    inputDialogVisible.value = false
+const textHistory = [
+  {
+    name: '文本片段一',
+    content: 'This is test text',
+    date: '2021-09-24'
   }
+]
+const addText = () => {
+  currentText.value =   {
+    name: '文本片段新',
+    content: '',
+    date: '2021-09-24'
+  }
+  contentSource.value = 'text'
 }
-const textArr = computed (() => { // 更与文本生成数组用于展示
-  const tempArr = []
-  textStr.value = textStr.value.trim() + "\n" //文本末尾加一个换行, 同时包含一段和多段的情况
-  const reg = /.+\n/g
-  let match
-  while(match = reg.exec(textStr.value)){
-    tempArr.push(match[0].split(' '))
+const currentText = ref({})
+const viewText = (payload) => {
+  currentText.value = payload
+  contentSource.value = 'text'
+}
+
+const tags = reactive({
+  wordInfo: {
+    name: '单词查询',
+    isShow: true,
+  },
+  relatedNotes: {
+    name: '关联笔记',
+    isShow: true,
   }
-  return tempArr
 })
-//清空阅读区
-const clearDialogVisible = ref(false)
-const confirmClear = () => { //对话内确认按钮
-  textStr.value = ''
-  clearDialogVisible.value = false
-}
-
-//text-display 页面鼠标单双击操作
-// 查词历史
-const searchHistory = reactive([])
-const addSearchHistory = (word: string) => {
-  //匹配字母和 ' , 去掉可能的标点符号、空格
-  const reg = /[a-zA-Z']+/
-  word = reg.exec(word)![0].toLowerCase()
-  //判断是否连续查询同一个单词 
-  if(searchHistory[searchHistory.length - 1] !== word) {
-    searchHistory.push(word)
-  }
-}
-const queryInfo = {
-  pageNum: 1,
-  pageSize: 5,
-  word: ''
-}
-// 在词典中查询单词
-const searchThroughDict = () => {
-  if (!searchHistory.length) return
-  const currentWord = searchHistory[searchHistory.length - 1]
-  if(mode.value === 'meaning'){
-    const params: { word: string } = { word: '' }
-    params.word = currentWord
-    const {data: meaningData} = proxy.$http.get('/dict/words', { params })
-    infoData.value = markRaw(meaningData)
-  }else if(mode.value === 'sentence'){
-    queryInfo.word = currentWord
-    const {data: sentenceData} = proxy.$http.get('/dict/sentences', {
-      params: queryInfo
-    })
-    infoData.value = markRaw(sentenceData)
-  }
-}
-watch (searchHistory, searchThroughDict, { deep: true})
-// 单击查词
-let timer: null | any = null
-const clickSearch = (word: string) => {
-  clearTimeout(timer)
-  timer = window.setTimeout(()=>{
-    addSearchHistory(word)
-  }, 200)
-}
-
 //将单词加入当前单词集
 // const addToWordCollection = (word: string) =>{
 //   clearTimeout(timer)
@@ -239,28 +146,6 @@ const clickSearch = (word: string) => {
 //   // $message.show(`成功添加 ${word} 至单词集`)
 // }
 
-// 查词展示区
-const { proxy } = getCurrentInstance()
-
-const searchBoxVisible = ref(false)
-const infoData = ref({}) //查到的单词释义/例句
-
-//切换释义/例句模式
-const mode = ref('meaning') 
-const switchMode = (modeValue: string) => {
-  mode.value = modeValue
-  if (currentWord.value) {
-    searchThroughDict(currentWord.value)
-  }
-}
-
-//输入查词
-const inputWord = ref('contest')
-const inputSearch = () => {
-  if (inputWord.value) {
-    addSearchHistory(inputWord.value)
-  }
-}
 </script>
 <style lang="less" scoped>
 .reading{
@@ -273,81 +158,19 @@ const inputSearch = () => {
     height: 100%;
     padding-bottom: 40px;
   }
-  .content-section{
-    height: 100%;
-    .text-container{
-      .text-display{
-        border: 2px solid rgb(64, 128, 128) ;
-        margin-top: 20px;
-        height: calc(100% - 60px);
-        padding: 10px;
-        background-color: #fff;
-        overflow-y: auto;
-        p{
-          margin-bottom: 10px;
-          line-height: 22px;
-          text-align: justify;
-          span{
-            cursor: pointer;
-          }
-        }
-      }
-    }
-    .iframe-container{
-      height: calc(100% - 60px)
+  .source-select{
+    .title{
+      font-weight: bold;
     }
   }
-  .word-section{
-    height: 100%;
-    .switch-box{
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 20px;
-      .switch{
-        display: flex;
-        width: 100px;
-        border-radius: 20px;
-        padding: 5px;
-        cursor: pointer;
-        background-color: lightgray;
-        color: #666;
-        .mode{
-          width: 50px;
-          text-align: center;
-          height: 24px;
-          line-height: 24px;
-          border-radius: 20px;
-          &.active{
-            background-color: #409EFF;
-            color: #fff;
-          }
-        }
-      }
-    }
-    .search-box{
-      display: flex;
-      :deep .el-input__inner{
-        border-color: transparent;
-        border-right: none;
-        border-bottom: 1px solid #409EFF;
-        border-radius: 0
-      }
-      .serach-icon{
-        flex: 0 0 54px;
-        text-align: center;
-        line-height: 40px;
-        font-size: 20px;
-        color: #FFF;
-        background-color: #409EFF;
-        cursor: pointer;
-      }
-    }
-    .info-display{
-      height: calc(100% - 100px);
-      padding-left: 10px;
-      padding-right: 5px;
-      background-color: rgb(252, 252, 254) ;
-      background-color: #DCDFE6 ;
+  // .toggle-box{
+
+  // }
+  .attach-section{
+    display: flex;
+    flex-direction: column;
+    > div{
+      flex: 1;
     }
   }
 }
