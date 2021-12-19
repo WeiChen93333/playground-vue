@@ -78,13 +78,6 @@ const confirmClear = () => { //对话内确认按钮
   clearDialogVisible.value = false
 }
 const textStr = ref('') //全部文本
-const newAdd = ref('') //用户每次输入的文本
-const confirmInput = () => { // 对话内确认按钮
-  textStr.value += newAdd.value
-  newAdd.value = ''
-  store.commit('modules/reading/setText', textStr.value)
-  inputDialogVisible.value = false
-}
 const textArr = computed (() => { // 文本生成数组用于展示
   const tempArr = []
   textStr.value = textStr.value.trim() + "\n" //文本末尾加一个换行, 同时包含一段和多段的情况
@@ -99,6 +92,7 @@ const textArr = computed (() => { // 文本生成数组用于展示
 const save = () => {
   const postObj = {
     type: 'text',
+    id: '123456',
     title: '文本片段一',
     content: textStr.value,
     url: 'N'

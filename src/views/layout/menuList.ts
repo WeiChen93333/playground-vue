@@ -5,7 +5,14 @@ export default [
     res_icon: 'el-icon-reading',
     parent_url: null,
     showChildren: false,
-    children: []
+    children: [
+      {
+        res_title: '内容详情',
+        res_url: 'content-detail',
+        parent_url: 'reading',
+        showChildren: false
+      }
+    ]
   },
   {
     res_title: '笔记',

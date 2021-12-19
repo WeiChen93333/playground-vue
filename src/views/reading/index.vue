@@ -31,8 +31,8 @@
                   <el-button type="text" class="button" @click="addText">新建</el-button>
                 </div>
               </template>
-              <el-table :data="textHistory" border style="width: 100%">
-                <el-table-column prop="name" label="文本片段名称" width="180" />
+              <el-table :data="textList" border style="width: 100%">
+                <el-table-column prop="title" label="文本片段名称" width="180" />
                 <el-table-column prop="date" label="上次阅读时间" width="180" />
                 <el-table-column prop="operation" label="操作">
                   <template v-slot="props">
@@ -43,15 +43,24 @@
                 </el-table-column>
               </el-table>
             </el-card>
+            <el-dialog title="创建文本片段" width="60%" v-model="addTextDialogVisible">
+              <el-input type="textarea"
+                :rows="6"
+                v-model="newAddText">
+              </el-input>
+              <template #footer>
+                <span class="dialog-footer">
+                  <el-button @click="addTextDialogVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="confirmInput">确 定</el-button>
+                </span>
+              </template>
+            </el-dialog>
           </div>
         </div>
         <div class="button-container mb16" v-else>
           <el-button type="primary" plain @click="contentSource = ''">返回</el-button>
         </div>
-        <div class="content-section h100">
-          <TextView v-if="contentSource === 'text'" :data="currentText" />
-          <LinkView v-if="contentSource === 'link'" :iframeSrc="iframeSrc" />
-        </div>
+        
       </el-col>
       <el-col :span="10">
         <div class="toggle-box mb16">
@@ -72,14 +81,14 @@
 <script setup lang="ts">
 // import WordInfoDisplay from '@/views/components/WordInfoDisplay'
 // import SentenceDisplay from '@/views/components/SentenceDisplay'
-
-import TextView from './components/TextView.vue'
-import LinkView from './components/LinkView.vue'
+import axios from '@/axios/index'
 import WordInfo from './components/WordInfo.vue'
 
-import { ref, computed, onMounted, reactive, markRaw, watch,  getCurrentInstance } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import { useStore} from 'vuex'
+import { useRouter } from 'vue-router'
 const store = useStore()
+const router = useRouter()
 const wordCollection = computed(() => store.state.wordCollection).value
 import useTree from './hooks/useTree.js'
 // const currentWord = computed(() => {
@@ -88,14 +97,7 @@ import useTree from './hooks/useTree.js'
 //   }
 // })
 
-//初始化时从 vuex 获取阅读文本，获取当前单词（如有，并查询）
-const init = () => {
-  //初始化时从 vuex 获取当前单词
-  // if (currentWord.value) {
-  //   searchThroughDict(currentWord.value)
-  // }
-}
-onMounted (() => init())
+
 const {
   contentSource,
   filterText,
@@ -104,25 +106,44 @@ const {
   iframeSrc
 } = useTree()
 
-const textHistory = [
-  {
-    name: '文本片段一',
-    content: 'This is test text',
-    date: '2021-09-24'
-  }
-]
-const addText = () => {
-  currentText.value =   {
-    name: '文本片段新',
-    content: '',
-    date: '2021-09-24'
-  }
-  contentSource.value = 'text'
+let textList = ref([])
+const getTextList = () => {
+  axios.post('/playground-vue/readingMaterial/list')
+    .then((res) => {
+      textList.value = res.data
+    })
 }
-const currentText = ref({})
-const viewText = (payload) => {
-  currentText.value = payload
-  contentSource.value = 'text'
+onMounted (() => {
+  getTextList()
+})
+const addTextDialogVisible = ref(false)
+const newAddText = ref('') //用户每次输入的文本
+
+const addText = () => {
+  addTextDialogVisible.value = true
+}
+const confirmInput = () => { // 新增确认按钮
+  // textStr.value += newAddText.value
+  // newAddText.value = ''
+  // store.commit('modules/reading/setText', textStr.value)
+  const postObj = {
+    type: 'text',
+    title: '文本片段一',
+    content: newAddText.value,
+    url: 'N'
+  }
+  axios.post('/playground-vue/readingMaterial/create', postObj)
+  addTextDialogVisible.value = false
+}
+const viewText = (row) => {
+  console.log(row)
+  // router.push({
+  //   path: 'reading/content-detail',
+  //   query: {
+  //     type: 'text',
+  //     id: '123456'
+  //   }
+  // })
 }
 
 const tags = reactive({
